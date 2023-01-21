@@ -14,6 +14,11 @@ const TypingTest : React.FC = () => {
     const activeWord = useRef<IWords['activeWord']>(wordRows[activeRowIndex.current][activeWordIndex.current]);
     const [currentInput, setCurrentInput] = useState<string>("");
 
+
+    /**
+     * Retrieves 350 random words and generates an array of rows containing word objects.
+     * each row contains a list of words that have a combined character count of under 60.
+     */
     const generateRows = () : void =>{
 
         const wordList : string[] = randomWords(350);
@@ -41,10 +46,10 @@ const TypingTest : React.FC = () => {
 
     }
 
-    useEffect(() =>{
 
-    }, [wordRows]);
-
+    /**
+     * Scrolls through the Word rows updating active word index, active row index and the current active word
+     */
     const changeActiveWord = () => {
         console.log(activeWord.current);
         activeWord.current.active = false;
@@ -61,6 +66,10 @@ const TypingTest : React.FC = () => {
     }
 
 
+    /**
+     * if user inputs a space, active word is changed and input field is reset
+     * @param event Keyboard event
+     */
     const handleInput = (event : React.KeyboardEvent<HTMLInputElement>) : void =>{
         if(event.key === " "){     
             setCurrentInput("");
@@ -68,6 +77,10 @@ const TypingTest : React.FC = () => {
         }
     }
 
+    /**
+     * Updates inputfields state and updats the correct boolean on the active word based on input
+     * @param event Inputfield change event
+     */
     const handleChange = (event : React.ChangeEvent<HTMLInputElement>) : void =>{
         setCurrentInput(event.target.value);
         if(event.target.value.endsWith(" ")){
@@ -77,6 +90,9 @@ const TypingTest : React.FC = () => {
         }
     }
 
+    /**
+     * When user focuses the input field the active word is initialized.
+     */
     const initializeActiveWord = () =>{
         activeWord.current = wordRows[activeRowIndex.current][activeWordIndex.current];
     }
