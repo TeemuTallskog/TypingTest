@@ -1,5 +1,6 @@
 import React, {useEffect, useState, useRef} from 'react';
 import randomWords from 'random-words';
+import TypingTestDisplay from './TypingTestDisplay';
 
 interface IWords {
     wordRow : {value: string, active: boolean, correct: boolean}[][];
@@ -52,8 +53,9 @@ const TypingTest : React.FC = () => {
      */
     const changeActiveWord = () => {
         console.log(activeWord.current);
+        console.log(activeWordIndex.current, wordRows[activeRowIndex.current].length);
         activeWord.current.active = false;
-        if(activeWordIndex.current < wordRows[activeRowIndex.current].length){
+        if(activeWordIndex.current < wordRows[activeRowIndex.current].length - 1){
             activeWordIndex.current++;
             activeWord.current = wordRows[activeRowIndex.current][activeWordIndex.current];
         }else{
@@ -84,7 +86,7 @@ const TypingTest : React.FC = () => {
     const handleChange = (event : React.ChangeEvent<HTMLInputElement>) : void =>{
         setCurrentInput(event.target.value);
         if(event.target.value.endsWith(" ")){
-            activeWord.current.correct = (activeWord.current.value == event.target.value);
+            activeWord.current.correct = (activeWord.current.value + " " == event.target.value);
         }else{
             activeWord.current.correct = (activeWord.current.value.startsWith(event.target.value));
         }
@@ -95,6 +97,7 @@ const TypingTest : React.FC = () => {
      */
     const initializeActiveWord = () =>{
         activeWord.current = wordRows[activeRowIndex.current][activeWordIndex.current];
+        activeWord.current.active = true;
     }
 
     useEffect(() =>{
@@ -104,6 +107,7 @@ const TypingTest : React.FC = () => {
 
     return (
         <div>
+            <TypingTestDisplay wordRow={wordRows} activeRowIndex={activeRowIndex} activeWordIndex={activeWordIndex}/>
             <form>
                 <input type="text" value={currentInput} onKeyUp={event => handleInput(event)} onChange={event => handleChange(event)} onFocus={initializeActiveWord}/>
             </form>
