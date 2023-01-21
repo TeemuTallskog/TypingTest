@@ -13,8 +13,19 @@ const TypingTest : React.FC = () => {
     const activeRowIndex = useRef<number>(0);
     const activeWordIndex = useRef<number>(0);
     const activeWord = useRef<IWords['activeWord']>(wordRows[activeRowIndex.current][activeWordIndex.current]);
+    
     const [currentInput, setCurrentInput] = useState<string>("");
+    const inputField = useRef<HTMLInputElement>(null);
 
+    const [countdown, setCountdown] = useState<number>(60);
+    const [isCounting, setIsCounting] = useState<boolean>(false);
+    const countdownInterval = useRef<NodeJS.Timer>();
+
+    const correctInputs = useRef<number>(0);
+    const incorrectInputs = useRef<number>(0);
+    const correctWords = useRef<number>(0);
+    const incorrectWords = useRef<number>(0);
+    const correctWordCharCount = useRef<number>(0);
 
     /**
      * Retrieves 350 random words and generates an array of rows containing word objects.
@@ -44,7 +55,6 @@ const TypingTest : React.FC = () => {
             }
         }
         setWordRows(row);
-
     }
 
 
@@ -52,8 +62,6 @@ const TypingTest : React.FC = () => {
      * Scrolls through the Word rows updating active word index, active row index and the current active word
      */
     const changeActiveWord = () => {
-        console.log(activeWord.current);
-        console.log(activeWordIndex.current, wordRows[activeRowIndex.current].length);
         activeWord.current.active = false;
         if(activeWordIndex.current < wordRows[activeRowIndex.current].length - 1){
             activeWordIndex.current++;
@@ -64,7 +72,6 @@ const TypingTest : React.FC = () => {
             activeWord.current = wordRows[activeRowIndex.current][activeWordIndex.current];
         }
         activeWord.current.active = true;
-        console.log(activeWord.current);
     }
 
 
@@ -77,18 +84,27 @@ const TypingTest : React.FC = () => {
             setCurrentInput("");
             changeActiveWord();
         }
+        if(!isCounting){
+            startCountdown();
+        }
     }
 
     /**
-     * Updates inputfields state and updats the correct boolean on the active word based on input
+     * Updates inputfields state and updats the correct boolean on the active word based on input.
+     * Also records correct/incorrect inputs
      * @param event Inputfield change event
      */
     const handleChange = (event : React.ChangeEvent<HTMLInputElement>) : void =>{
         setCurrentInput(event.target.value);
         if(event.target.value.endsWith(" ")){
-            activeWord.current.correct = (activeWord.current.value + " " == event.target.value);
+            const correct = (activeWord.current.value + " " == event.target.value);
+            activeWord.current.correct = correct;
+            correct ? correctWords.current++ : incorrectWords.current++;
+            if(correct) correctWordCharCount.current += event.target.value.length - 1;
         }else{
-            activeWord.current.correct = (activeWord.current.value.startsWith(event.target.value));
+            const correct = activeWord.current.value.startsWith(event.target.value);
+            activeWord.current.correct = correct;
+            correct ? correctInputs.current++ : incorrectInputs.current++;
         }
     }
 
@@ -100,6 +116,49 @@ const TypingTest : React.FC = () => {
         activeWord.current.active = true;
     }
 
+    /**
+     * Starts a countdown from 60 seconds to 0.
+     * once the countdown hits 0 the test is stopped.
+     */
+    const startCountdown = () =>{
+        setIsCounting(true);
+        countdownInterval.current = setInterval(() => {
+            setCountdown((prevCountdown) => {
+              if (prevCountdown === 0) {
+                stopTest();
+                return 0;
+              }
+              return prevCountdown - 1;
+            });
+          }, 1000);
+    }
+
+    /**
+     * Stops the countdown, displays the results and initializes the test again.
+     */
+    const stopTest = () =>{
+        clearInterval(countdownInterval.current);
+        setIsCounting(false);
+        console.log(correctWords.current, correctWordCharCount.current);
+        console.log("WPM : " + (correctWordCharCount.current / 5 ) );
+        initializeTest();
+    }
+
+    /**
+     * Initializes the test and timer.
+     */
+    const initializeTest = () =>{
+        if(inputField.current != null) inputField.current.blur();
+        setCurrentInput("");
+        generateRows();
+        setCountdown(60);
+        correctInputs.current = 0;
+        incorrectInputs.current = 0;
+        correctWords.current = 0;
+        incorrectWords.current = 0;
+        correctWordCharCount.current = 0;
+    }
+
     useEffect(() =>{
         generateRows();
     }, [])
@@ -108,9 +167,11 @@ const TypingTest : React.FC = () => {
     return (
         <div>
             <TypingTestDisplay wordRow={wordRows} activeRowIndex={activeRowIndex} activeWordIndex={activeWordIndex}/>
-            <form>
-                <input type="text" value={currentInput} onKeyUp={event => handleInput(event)} onChange={event => handleChange(event)} onFocus={initializeActiveWord}/>
-            </form>
+            <div>
+                <input type="text" value={currentInput} onKeyUp={event => handleInput(event)} onChange={event => handleChange(event)} onFocus={initializeActiveWord} ref={inputField}/>
+                <button onClick={stopTest}>Restart</button>
+                <div>{countdown}</div>
+            </div>
         </div>
     )
 }
