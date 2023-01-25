@@ -1,10 +1,19 @@
 import React, {useEffect, useState, useRef} from 'react';
 import randomWords from 'random-words';
 import TypingTestDisplay from './TypingTestDisplay';
+import TypingTestResult from './TypingTestResult';
+import { isConstructorDeclaration } from 'typescript';
 
 interface IWords {
     wordRow : {value: string, active: boolean, correct: boolean}[][];
     activeWord: {value: string, active: boolean, correct: boolean};
+    result : {
+        correctInputs : number,
+        incorrectInputs : number,
+        correctWords : number,
+        incorrectWords : number,
+        correctWordsCharCount: number
+        }
 }
 
 const TypingTest : React.FC = () => {
@@ -26,6 +35,16 @@ const TypingTest : React.FC = () => {
     const correctWords = useRef<number>(0);
     const incorrectWords = useRef<number>(0);
     const correctWordCharCount = useRef<number>(0);
+    const [results, setResults] = useState<IWords["result"]>({
+        correctInputs : 0,
+        incorrectInputs : 0,
+        correctWords : 0,
+        incorrectWords : 0,
+        correctWordsCharCount: 0
+    });
+
+    const [isFinnished, setIsFinnished] = useState<boolean>(false);
+
 
     /**
      * Retrieves 350 random words and generates an array of rows containing word objects.
@@ -126,11 +145,17 @@ const TypingTest : React.FC = () => {
             setCountdown((prevCountdown) => {
               if (prevCountdown === 0) {
                 stopTest();
+                setIsFinnished(true);
                 return 0;
               }
               return prevCountdown - 1;
             });
           }, 1000);
+    }
+
+    const restartTest = () =>{
+        setIsFinnished(false);
+        stopTest();
     }
 
     /**
@@ -139,9 +164,19 @@ const TypingTest : React.FC = () => {
     const stopTest = () =>{
         clearInterval(countdownInterval.current);
         setIsCounting(false);
-        console.log(correctWords.current, correctWordCharCount.current);
-        console.log("WPM : " + (correctWordCharCount.current / 5 ) );
         initializeTest();
+    }
+
+    const markResults = () =>{
+        const resultSet : IWords["result"] = {
+            correctInputs : correctInputs.current,
+            incorrectInputs : incorrectInputs.current,
+            correctWords : correctWords.current,
+            incorrectWords : incorrectWords.current,
+            correctWordsCharCount: correctWordCharCount.current
+            }
+        console.log(resultSet);
+        setResults(resultSet);
     }
 
     /**
@@ -150,14 +185,26 @@ const TypingTest : React.FC = () => {
     const initializeTest = () =>{
         if(inputField.current != null) inputField.current.blur();
         setCurrentInput("");
-        generateRows();
+
         setCountdown(60);
+
+        generateRows();
+        markResults();
+        activeRowIndex.current = 0;
+        activeWordIndex.current = 0;
+        activeWord.current = {value: "", active: false, correct: true};
+    }
+
+    /**
+     * Initializes temporary variables after results are saved onto a state
+     */
+    useEffect(() =>{
         correctInputs.current = 0;
         incorrectInputs.current = 0;
         correctWords.current = 0;
         incorrectWords.current = 0;
         correctWordCharCount.current = 0;
-    }
+    },[markResults])
 
     useEffect(() =>{
         generateRows();
@@ -166,10 +213,10 @@ const TypingTest : React.FC = () => {
 
     return (
         <div>
-            <TypingTestDisplay wordRow={wordRows} activeRowIndex={activeRowIndex} activeWordIndex={activeWordIndex}/>
             <div>
+            {isFinnished ? <TypingTestResult result={results}></TypingTestResult> : <TypingTestDisplay wordRow={wordRows} activeRowIndex={activeRowIndex} activeWordIndex={activeWordIndex}/>}
                 <input type="text" value={currentInput} onKeyUp={event => handleInput(event)} onChange={event => handleChange(event)} onFocus={initializeActiveWord} ref={inputField}/>
-                <button onClick={stopTest}>Restart</button>
+                <button onClick={restartTest}>Restart</button>
                 <div>{countdown}</div>
             </div>
         </div>

@@ -29,3 +29,25 @@
     color: red;
     background-color: inherit;
 }
+
+.resultBox{
+    border: black 1px solid;
+    width: 400px;
+    font-weight: bold;
+}
+
+.resultBox > div {
+    border: black 1px solid;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+.redText{
+    color: red;
+}
+
+.greenText{
+    color: green;
+}
