@@ -1,15 +1,62 @@
+:root{
+    --background-color: rgb(33, 0, 122);
+    --background-secondary-color: rgb(0, 89, 161);
+    --text-color: rgb(218, 218, 218);
+    --border-color: black;
+}
+
 #TextBox{
-    background-color: lightblue;
+    background-color: var(--background-color);
     padding: 5px 25px 25px 25px;
     margin: 25px;
     height: 110px;
     width: 50em;
     font-size: 2em;
     flex-flow: column;
-    border: black 1px solid;
+    border: var(--border-color) 1px solid;
     border-radius: 15px;
     align-items: center;
+    color: var(--text-color);
 }
+
+.inputBox{
+    flex-flow: row;
+    align-items: center;
+}
+
+.inputBox > input{
+    width: 400px;
+    height: 50px;
+    max-height: 50px;
+    border-radius: 10px;
+    margin: 25px;
+    font-size: 25px;
+    font-weight: 200;
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+.inputBox > button{
+    height: 50px;
+    border-radius: 10px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+#countdown{
+    margin: 25px;
+    display: inline-flex;
+    height: 50px;
+    width: 50px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-weight: bold;
+    font-size: 20px;
+}
+
 .wordContainer{
     padding: 3px 5px 3px 5px;
     margin-right: 5px;
@@ -31,13 +78,13 @@
 }
 
 .resultBox{
-    border: black 1px solid;
+    border: var(--border-color) 1px solid;
     width: 400px;
     font-weight: bold;
 }
 
 .resultBox > div {
-    border: black 1px solid;
+    border: var(--border-color) 1px solid;
     display: flex;
     justify-content: space-between;
     padding-left: 25px;

@@ -2,7 +2,6 @@ import React, {useEffect, useState, useRef} from 'react';
 import randomWords from 'random-words';
 import TypingTestDisplay from './TypingTestDisplay';
 import TypingTestResult from './TypingTestResult';
-import { isConstructorDeclaration } from 'typescript';
 
 interface IWords {
     wordRow : {value: string, active: boolean, correct: boolean}[][];
@@ -175,7 +174,6 @@ const TypingTest : React.FC = () => {
             incorrectWords : incorrectWords.current,
             correctWordsCharCount: correctWordCharCount.current
             }
-        console.log(resultSet);
         setResults(resultSet);
     }
 
@@ -204,7 +202,7 @@ const TypingTest : React.FC = () => {
         correctWords.current = 0;
         incorrectWords.current = 0;
         correctWordCharCount.current = 0;
-    },[markResults])
+    },[results])
 
     useEffect(() =>{
         generateRows();
@@ -215,9 +213,11 @@ const TypingTest : React.FC = () => {
         <div>
             <div>
             {isFinnished ? <TypingTestResult result={results}></TypingTestResult> : <TypingTestDisplay wordRow={wordRows} activeRowIndex={activeRowIndex} activeWordIndex={activeWordIndex}/>}
+                <div className='inputBox'>
                 <input type="text" value={currentInput} onKeyUp={event => handleInput(event)} onChange={event => handleChange(event)} onFocus={initializeActiveWord} ref={inputField}/>
-                <button onClick={restartTest}>Restart</button>
-                <div>{countdown}</div>
+                    <button onClick={restartTest}>Restart</button>
+                    <span id='countdown'>{countdown}</span>
+                </div>
             </div>
         </div>
     )

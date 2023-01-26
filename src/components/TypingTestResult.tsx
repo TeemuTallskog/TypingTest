@@ -22,8 +22,8 @@ const TypingTestResult : React.FC<IProps> = (props : IProps) =>{
                 <p>{props.result.correctWordsCharCount / 5}</p>
             </div>
             <div>
-                <p>Accuraccy</p>
-                <p>{(props.result.correctInputs / (props.result.correctInputs + props.result.incorrectInputs))}%</p>
+                <p>Accuracy</p>
+                <p>{((props.result.correctInputs / (props.result.correctInputs + props.result.incorrectInputs)) * 100).toFixed(2)}%</p>
             </div>
             <div>
                 <p>Keystrokes</p>
